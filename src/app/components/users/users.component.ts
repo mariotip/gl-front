@@ -46,10 +46,8 @@ export class UsersComponent implements OnInit {
   }
 
   editUser() {
-    console.log(this.userFG.value);
     this.userService.update(this.user.id, this.userFG.value)
       .subscribe(res => {
-        console.log(res);
         this.modalService.dismissAll();
         this.getUsers()
       }, (err) => {
@@ -58,7 +56,6 @@ export class UsersComponent implements OnInit {
   }
 
   getUser(id: number) {
-    console.log('el valor ', id);
     this.userService.show(id)
       .subscribe(res => {
         this.resp = res
@@ -70,14 +67,23 @@ export class UsersComponent implements OnInit {
   }
 
   deleteUser(id: any) {
-    this.userService.delete(id)
-    .subscribe( res => {
-      this.getUsers()
-    }, (err) =>{
-      console.log(err);
-    })
-  }
+    this.user= ''
 
+    this.getUser(id)
+    setTimeout(() => {
+      if (confirm(`desea realmente eliminar el usuario ${this.user.username }`)) {
+        this.userService.delete(id)
+        .subscribe( res => {
+          this.getUsers()
+        }, (err) =>{
+          console.log(err);
+        })
+      }
+      this.user= ''
+    }, 100);
+    
+  }
+    
   saveUser() {
     if (this.userFG.invalid) {
       return Object.values(this.userFG.controls).forEach(control => {
@@ -103,7 +109,6 @@ export class UsersComponent implements OnInit {
     this.modalService.open(content, { size: 'sm' }).result.then((result) => {
       this.closeResult = `Closed with: ${result}`;
     }, (reason) => {
-      console.log('la razon', reason);
       this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
     });
   }
@@ -111,14 +116,11 @@ export class UsersComponent implements OnInit {
   // This function is used in open
   private getDismissReason(reason: any): string {
     if (reason === ModalDismissReasons.ESC) {
-      console.log('escape');
       return 'by pressing ESC';
     } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
-      console.log('click atras');
       this.user= ''
       return 'by clicking on a backdrop';
     } else {
-      console.log('imprime la razon', reason);
       this.user= ''
       return `with: ${reason}`;
     }
